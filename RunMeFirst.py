@@ -6,6 +6,22 @@ import sleep from time as timesleep
 from pygame.locals import *
 import pygame
 
+UP = 26 # Define the pin for the up button
+DOWN = 13 # Define the pin for the down button
+LEFT = 20 # Define the pin for the left button
+RIGHT = 19 # Define the pin for the right button
+A = 16 # Define the pin for button A
+B = 21 # Define the pin for button B
+
+GPIO.setmode(GPIO.BCM) # Set the GPIO mode
+
+for pin in [UP, DOWN, LEFT, RIGHT, A, B]:
+    GPIO.setup(pin, GPIO.IN, GPIO.PUD_UP) # Set the pullup resistors
+
+pygame.init() # Intialize Pygame
+pygame.display.set_mode((640, 480)) # Set display mode
+
+
 sense = SenseHat()
 
 sense.show_message("A = Install", text_colour=(255, 0, 0)) # Ask for confirmation before installing the dependencies.

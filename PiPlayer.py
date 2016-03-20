@@ -6,20 +6,38 @@ from pygame import mixer # Used to play MP3s
 import glob # Used to get a list of MP3s
 from espeak import espeak # Used to give the user track information
 from os import path # Used to get the names of tracks from the path
-import random
+import random # Used to shuffle songs
 
+InternetAvailableInSpace = True
 SelectedNumber = 0
 MusicLocation = "/boot/mp3/" # Sets the location to search for music. You should this to wherever your music is stored. Make sure you have a trailing slash.
 MusicList = glob.glob(MusicLocation + '*.mp3') # Gets a list of all the MP3s in MusicLocation.
 ScrubBackSize = 50 # The time in milliseconds to scrub backward.
 ScrubForwardSize = 50 # The time in milliseconds to scrub forward
 
+
+UP = 26 # Define the pin for the up button
+DOWN = 13 # Define the pin for the down button
+LEFT = 20 # Define the pin for the left button
+RIGHT = 19 # Define the pin for the right button
+A = 16 # Define the pin for button A
+B = 21 # Define the pin for button B
+
+GPIO.setmode(GPIO.BCM) # Set the GPIO mode
+
+for pin in [UP, DOWN, LEFT, RIGHT, A, B]:
+    GPIO.setup(pin, GPIO.IN, GPIO.PUD_UP) # Set the pullup resistors
+
+pygame.init() # Intialize Pygame
+pygame.display.set_mode((640, 480)) # Set display mode
+
+
 def SelectInfo(TrackNumber):
     espeak.synth("Track number " + str(TrackNumber + 1) + " selected named " + TrackName(TrackNumber) + ".") # This tells the user the name of the selected track.
     espeak.synth("Press A to play") # Tells the user how to play the selected track.
 
 def play(TrackNumber):
-    paused = 0
+    paused = False
     mixer.init() # Starts PyGame's Mixer
     mixer.music.load(MusicList[TrackNumber]) # Load the selected MP3.
     mixer.music.play() # Plays the MP3 we just loaded.
@@ -30,12 +48,12 @@ def TrackName(TrackNumber):
 
 def MusicToggle(TrackNumber):
     if mixer.music.get_busy(): # Make sure the music is playing!
-        if paused == 0: # Check if the music is paused or playing
+        if paused: # Check if the music is paused or playing
             mixer.music.pause() # Pause the music
-            paused = 1 # Set the music to paused for future reference
-        elif paused == 1: # If it's not playing, unpause it!
+            paused = True # Set the music to paused for future reference
+        else: # If it's not playing, unpause it!
             mixer.music.unpause() # Unpause music.
-            paused = 0 # Set the music to playing for future reference
+            paused = False # Set the music to playing for future reference
     else:
         play(TrackNumber) # If nothing's playing, start playnig the selected track to let this button be multifunctional.
 
