@@ -7,6 +7,9 @@ import glob # Used to get a list of MP3s
 from espeak import espeak # Used to give the user track information
 from os import path # Used to get the names of tracks from the path
 import random # Used to shuffle songs
+import RPi.GPIO as GPIO # used for input
+from pygame.locals import * # Used for input
+import pygame # Used for input
 
 InternetAvailableInSpace = True
 SelectedNumber = 0
