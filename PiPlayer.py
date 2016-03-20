@@ -2,7 +2,7 @@
 
 ## Made by Matthew Strodl ##
 
-from Pillow import Image
+from PIL import Image
 from pygame import mixer # Used to play MP3s
 import glob # Used to get a list of MP3s
 try:
@@ -28,7 +28,7 @@ import pygame # Used for input
 import base64 # Used to undoll the dependencies
 
 system("sudo amixer cset numid=3 1") # Set audio output to analog jack
-os.system("sudo amixer cset numid=1 100%") # Set volume to 100% then manage it with PyGame
+system("sudo amixer cset numid=1 100%") # Set volume to 100% then manage it with PyGame
 
 SelectedNumber = 0 # Sets the default track
 pygame.init() # Starts pygame.

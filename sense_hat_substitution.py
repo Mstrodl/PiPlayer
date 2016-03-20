@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-def __main__:
+def main():
     return
 
 def set_pixels(mylist):
@@ -22,3 +22,6 @@ def clear():
 def load_image(img):
     print(img)
     return img
+
+if __name__ == "__main__":
+    main()
