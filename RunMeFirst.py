@@ -34,7 +34,7 @@ running = True
 while running:
     for event in pygame.event.get():
         if event.type == KEYDOWN:
-            elif event.key == K_a:
+            if event.key == K_a:
                 sense.clear()
                 sense.show_message("Installing deps.", text_colour=(255, 0, 0)) # Tells the user that the dependencies are installing.
                 system("export SUDO_ASKPASS2=$SUDO_ASKPASS; export SUDO_ASKPASS='/bin/echo raspberry'; sudo -A dpkg -i Debs/espeak-data_1.46.02-2_armhf.deb Debs/espeak_1.46.02-2_armhf.deb Debs/libespeak1_1.46.02-2_armhf.deb Debs/libsonic0_0.1.17-1.1_armhf.deb Debs/python-espeak_0.4-1_armhf.deb; export SUDO_ASKPASS=$SUDO_ASKPASS2; unset SUDO_ASKPASS2") # Installs dependencies.
