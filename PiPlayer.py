@@ -2,9 +2,24 @@
 
 ## Made by Matthew Strodl ##
 
+from Pillow import Image
 from pygame import mixer # Used to play MP3s
 import glob # Used to get a list of MP3s
-import espeak # Used to give the user track information
+try:
+    __import__("espeak") # Used to give the user track information
+except ImportError:
+    FirstRun = True
+else:
+    FirstRun = False
+    import espeak
+try:
+    __import__("sense_hat") # I test my code on non-pi devices... check if it is a pi with a sense hat
+except ImportError:
+    import sense_hat_substitution as SenseHat
+else:
+    from sense_hat import SenseHat
+
+from os import system # Used to run commands
 from os import path # Used to get the names of tracks from the path
 import random # Used to shuffle songs
 #import RPi.GPIO as GPIO # used for input
@@ -12,8 +27,14 @@ from pygame.locals import * # Used for input
 import pygame # Used for input
 import base64 # Used to undoll the dependencies
 
+system("sudo amixer cset numid=3 1") # Set audio output to analog jack
+os.system("sudo amixer cset numid=1 100%") # Set volume to 100% then manage it with PyGame
+
 SelectedNumber = 0 # Sets the default track
 pygame.init() # Starts pygame.
+
+pygame.mixer.music.set_volume(5 / 10) # Set the default volume (50%)
+
 
 scriptfolder = path.dirname(path.realpath(__file__)) # Get directory the script lives in
 Updater = True # Set this to false if you don't want the script to check for updates.
@@ -50,7 +71,9 @@ def UnNestingDoll(doll, output, makeplain=False):
     print("Undolled to: '" + output + "'!") # Just a debug thingy
     
 def InstallDEB(deb):
-    system("export SUDO_ASKPASS2=$SUDO_ASKPASS; export SUDO_ASKPASS='/bin/echo " + password + "'; sudo -A dpkg -i " + deb + "; export SUDO_ASKPASS=$SUDO_ASKPASS2; unset SUDO_ASKPASS2") # This allows me to install the dependencies without a user entering the password in the terminal.
+#    system("export SUDO_ASKPASS2=$SUDO_ASKPASS; export SUDO_ASKPASS='/bin/echo " + password + "'; sudo -A dpkg -i " + deb + "; export SUDO_ASKPASS=$SUDO_ASKPASS2; unset SUDO_ASKPASS2") # This allows me to install the dependencies without a user entering the password in the terminal. # Apparanately passwords aren't needed? uncomment this if this isn't the case....
+
+    system("sudo dpkg -i " + deb)
 
 def NextTrack(SelectedNumber):
     if SelectedNumber >= len(MusicList) - 1: # If the track selected is the last one.
@@ -68,13 +91,23 @@ def PrevTrack(SelectedNumber):
 
 def SelectInfo(TrackNumber):
     espeak.synth("Track number " + str(TrackNumber + 1) + " selected named " + TrackName(TrackNumber) + ".") # This tells the user the name of the selected track. TODO add audio fingerprinting with Dejavu
-    espeak.synth("To play press button A") # Tells the user how to play the selected track.
+    espeak.synth("To play press the A, button") # Tells the user how to play the selected track.
 
 def play(TrackNumber):
     paused = False # Set the track to be unpaused
     mixer.init() # Starts PyGame's Mixer
     mixer.music.load(MusicList[TrackNumber]) # Load the selected MP3.
     mixer.music.play() # Plays the MP3 we just loaded.
+    if path.isfile(path.splitext(MusicList[TrackNumber])[0] + ".jpg"):
+        im = Image.open(path.splitext(MusicList[TrackNumber])[0] + ".jpg") # Open the thumbnail 
+        out = im.resize((8, 8)) # Resize the image
+        sense.load_image(path.splitext(MusicList[TrackNumber])[0] + ".jpg") # Display the thumbnail on the Sense HAT
+    elif path.isfile(path.splitext(MusicList[TrackNumber])[0] + ".png"):
+        im = Image.open(path.splitext(MusicList[TrackNumber])[0] + ".png") # Open the thumbnail
+        out = im.resize((8, 8)) # Resize the image
+        sense.load_image(path.splitext(MusicList[TrackNumber])[0] + ".png") # Display the thumbnail on the Sense HAT
+    else:
+        sense.show_message("Now playing " + TrackName(TrackNumber)) # If the thumbnail doesn't exist, just display the name of the file
     
 
 def TrackName(TrackNumber):
@@ -107,6 +140,7 @@ def MusicScrubBack():
         mixer.music.rewind() # Setting the position on an MP3 file is relative. We need to rewind it first to scrub properly.
         mixer.music.set_pos(MusicPosition) # Set the position to the one we set before.
 def PlayList(List, track):
+    
     for song in List:
         track += 1 # Selects the next track
         espeak.synth("Now playing track number " + str(track + 1) + ", " + TrackName(track)) # Tells the user the playing track
@@ -139,18 +173,19 @@ def PlayList(List, track):
                         MusicToggle(SelectedNumber) # Pause/Unpause music
                     elif event.key == pygame.K_b and event.type == pygame.KEYDOWN: # If B button is pressed
                         MusicStop() # Stop the music
+                        global SelectedNumber
                         SelectedNumber = track # Set the Selected song to be the track you just stopped.
                         return # Make sure to exit the function so it doesn't play the next one....
     global SelectedNumber # Allows editing of the selected song
     SelectedNumber = track # Set the Selected song to be the track you stopped at.
 
-#espeak.synth("Press the left button to list all tracks, press right button to shuffle tracks, press the up button to play all tracks, move the joystick up and down to select a track, press the A button to play and pause the selected track, or move the joystick left and right to scrub forward and backward.")
+
 
 #===Controls===
  
 #+++Buttons+++
 # Up    - Play all tracks √
-# Down  - Volume? TODO
+# Down  - Volume √
 # Left  - List all tracks √
 # Right - Shuffle √
 # A     - Play/Pause √
@@ -165,34 +200,36 @@ def PlayList(List, track):
 #+++Joystick+++
 
 #===Controls===
+if FirstRun:
+    print("Welcome to PiPlayer. Please wait while we undoll the deb dolls...")
+    
+    UnNestingDoll(espeak_doll, scriptfolder + "/espeak.deb")
+    UnNestingDoll(espeak_data_doll, scriptfolder + "/espeak-data.deb")
+    UnNestingDoll(libespeak1_doll, scriptfolder + "/libespeak1.deb")
+    UnNestingDoll(libsonic0_doll, scriptfolder + "/libsonic0.deb")
 
-print("Welcome to PiPlayer. Please wait while we undoll the deb dolls...")
+    print("Done undolling debs.")
 
-UnNestingDoll(espeak_doll, scriptfolder + "/espeak.deb")
-UnNestingDoll(espeak_data_doll, scriptfolder + "/espeak-data.deb")
-UnNestingDoll(libespeak1_doll, scriptfolder + "/libespeak1.deb")
-UnNestingDoll(libsonic0_doll, scriptfolder + "/libsonic0.deb")
+    print("Please wait while we install the undolled debs.")
 
-print("Done undolling debs.")
+    InstallDEB(scriptfolder + "/libsonic0.deb")
+    InstallDEB(scriptfolder + "/espeak-data.deb")
+    InstallDEB(scriptfolder + "/libespeak1.deb")
+    InstallDEB(scriptfolder + "/espeak.deb")
+    
+    print("Done installing debs.")
+    
+    print("Please wait while we undoll the Python module dolls.")
 
-print("Please wait while we install the undolled debs.")
+    UnNestingDoll(python_espeak_doll, scriptfolder + "/espeak.py", False)
 
-InstallDEB(scriptfolder + "/libsonic0.deb")
-InstallDEB(scriptfolder + "/espeak-data.deb")
-InstallDEB(scriptfolder + "/libespeak1.deb")
-InstallDEB(scriptfolder + "/espeak.deb")
+    print("Done undolling modules.")
 
-print("Done installing debs.")
+    print("Please wait while we install the undolled Python modules.")
 
-print("Please wait while we undoll the Python module dolls.")
-
-UnNestingDoll(python_espeak_doll, scriptfolder + "/espeak.py", True)
-
-print("Done undolling modules.")
-
-print("Please wait while we install the undolled Python modules.")
-
-print("Done installing.")
+    print("Done installing.")
+import espeak
+espeak.synth("Press the left button to list all tracks, press right button to shuffle tracks, press the up button to play all tracks, press the down button to change the volume, move the joystick up and down to select a track, press the A, button to play and pause the selected track, press the B button to stop the playing track, or move the joystick left and right to scrub forward and backward.")
 
 ## START ##
 # This block (marked by ## START ## and ## END ##) loops over the choices and calls their respective functions
@@ -229,5 +266,28 @@ while running:
                 random.shuffle(MusicList)
                 ShuffledList = MusicList
                 MusicList = MusicListBAK
+            elif event.key == pygame.K_d and event.type == pygame.KEYDOWN:
+                if pygame.mixer.music.get_volume() >= 1.0:
+                    pixels = sense.get_pixels()
+                    sense.clear()
+                    pygame.mixer.music.set_volume(0)
+                    if pygame.mixer.music.get_volume() * 10 >= 10:
+                        sense.show_message(str(pygame.mixer.music.get_volume() * 10))
+                    elif pygame.mixer.music.get_volume() * 10 <= 9:
+                        sense.show_letter(str(pygame.mixer.music.get_volume() * 10))
+                    sleep(1)
+                    sense.clear()
+                    sense.set_pixels(pixels)
+                elif pygame.mixer.music.get_volume() < 1.0:
+                    pixels = sense.get_pixels()
+                    sense.clear()
+                    pygame.mixer.music.set_volume((pygame.mixer.music.get_volume() * 10 + 1) / 10)
+                    if pygame.mixer.music.get_volume() * 10 >= 10:
+                        sense.show_message(str(pygame.mixer.music.get_volume() * 10))
+                    elif pygame.mixer.music.get_volume() * 10 <= 9:
+                        sense.show_letter(str(pygame.mixer.music.get_volume() * 10))
+                    sleep(1)
+                    sense.clear()
+                    sense.set_pixels(pixels)
                 
 ## END ##
