@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from sense_hat import SenseHat
-import system from os
-import sleep from time as timesleep
+from os import system
+from time import sleep as timesleep
 from pygame.locals import *
 import pygame
 
