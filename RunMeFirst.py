@@ -3,9 +3,9 @@
 from sense_hat import SenseHat
 from os import system
 from time import sleep as timesleep
-from pygame.locals import *
-import pygame
-import RPi.GPIO as GPIO
+#from pygame.locals import *
+#import pygame
+#import RPi.GPIO as GPIO
 
 UP = 26 # Define the pin for the up button
 DOWN = 13 # Define the pin for the down button
