@@ -18,6 +18,7 @@ except ImportError:
     import sense_hat_substitution as SenseHat
 else:
     from sense_hat import SenseHat
+    
 
 from os import system # Used to run commands
 from os import path # Used to get the names of tracks from the path
@@ -26,6 +27,11 @@ import random # Used to shuffle songs
 from pygame.locals import * # Used for input
 import pygame # Used for input
 import base64 # Used to undoll the dependencies
+
+if path.isfile("/usr/bin/espeak"): 
+    FirsRun = False # The absence of doll makes me repeat this
+else:
+    FirstRun = True # The absence of doll makes me repeat this
 
 system("sudo amixer cset numid=3 1") # Set audio output to analog jack
 system("sudo amixer cset numid=1 100%") # Set volume to 100% then manage it with PyGame
