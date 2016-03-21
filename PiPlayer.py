@@ -191,17 +191,7 @@ if FirstRun:
     InstallDEB(scriptfolder + "/libespeak1/")
     InstallDEB(scriptfolder + "/espeak/")
     
-    print("Done installing debs.")
-    
-    print("Please wait while we undoll the Python module dolls.")
-
-    UnNestingDoll(python_espeak_doll, scriptfolder + "/espeak.py", False)
-
-    print("Done undolling modules.")
-
-    print("Please wait while we install the undolled Python modules.")
-
-    print("Done installing.")
+    print("Done installing debs. (That aren't really debs.)")    
 import espeak
 espeak.synth("Press the left button to list all tracks, press right button to shuffle tracks, press the up button to play all tracks, press the down button to change the volume, move the joystick up and down to select a track, press the A, button to play and pause the selected track, press the B button to stop the playing track, or move the joystick left and right to scrub forward and backward.")
 
