@@ -55,7 +55,7 @@ print(MusicList) # Just a little debug thingy :-).
 def InstallDEB(deb):
 #    system("export SUDO_ASKPASS2=$SUDO_ASKPASS; export SUDO_ASKPASS='/bin/echo " + password + "'; sudo -A dpkg -i " + deb + "; export SUDO_ASKPASS=$SUDO_ASKPASS2; unset SUDO_ASKPASS2") # This allows me to install the dependencies without a user entering the password in the terminal. # Apparanately passwords aren't needed? uncomment this if this isn't the case....
 
-    system("cd " + deb + "; sudo cp -r usr /; sudo bash ./postinst configure")
+    system("cd " + deb + "; sudo cp -r usr/ /; sudo bash ./postinst configure")
 
 def NextTrack(SelectedNumber):
     if SelectedNumber >= len(MusicList) - 1: # If the track selected is the last one.
